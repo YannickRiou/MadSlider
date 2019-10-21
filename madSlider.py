@@ -1,38 +1,46 @@
+###
+# madSlider.py
+# Main file that control and launch thread
+##
+
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+# raspberry pi based 
 import RPi.GPIO as GPIO
+
+# Python utility
 from time import sleep
-
-import subprocess
-import Queue
-
+from Queue import Queue
 from threading import Thread
 
-from luma.core.interface.serial import i2c, spi
-from luma.core.render import canvas
-from luma.core import lib
-from luma.oled.device import sh1106
+# Project packages to handle motors, screen and communication
+from ui.madUi import UIThread
+from motor.madMotor import MotorThread
+from com.madBtCom import btComThread
+from com.madWifiCom import wifiComThread
 
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
+motorMovesQueue = Queue(maxsize = 10)
+UiReqQueue = Queue(maxsize = 10)
+btComQueue = Queue(maxsize = 10)
+wifiComQueue = Queue(maxsize = 10)
 
-from madUi import UIThread
-from madMotor import MotorThread
-from madCom import ComThread
+uiThread = UIThread(UiReqQueue)
+motorThread = MotorThread(motorMovesQueue)
+btComThread = btComThread(btComQueue)
+wifiComThread = wifiComThread(wifiComQueue)
 
-#motorMovesQueue = Queue.Queue(maxsize = 10)
+uiThread.setName('User Interface Thread')
+motorThread.setName('Motor Movement Thread')
+btComThread.setName('Bluetooth Communication Thread')
+wifiComThread.setName('Wifi Communication Thread')
 
-#uiThread = UIThread(motorMovesQueue)
-#motorThread = MotorThread(motorMovesQueue)
-comThread = ComThread()
+btComThread.start()
+uiThread.start()
+motorThread.start()
+wifiComThread.start()
 
-#uiThread.setName('User Interface Thread')
-#motorThread.setName('Motor Movement Thread')
-
-comThread.start()
-#uiThread.start()
-#motorThread.start()
-
-#motorThread.join()
-#uiThread.join()
+motorThread.join()
+uiThread.join()
+btComThread.join()
+wifiComThread.join()

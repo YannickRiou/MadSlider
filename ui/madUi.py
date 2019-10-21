@@ -6,15 +6,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Raspberry pi
 import RPi.GPIO as GPIO
+
+# Python utility
 from time import sleep
-import time
-import subprocess
 from threading import Thread
-import madMotor
+from Queue import Queue
 
-import Queue
-
+# OLED Screen library 
 from luma.core.interface.serial import i2c, spi
 from luma.core.render import canvas
 from luma.core import lib
@@ -23,7 +23,6 @@ from luma.oled.device import sh1106
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-
 
 # OLED Configuration
 
@@ -71,8 +70,6 @@ class UIThread(Thread):
 
 		self.width = 128
 		self.height = 64
-
-
 
                 padding = 2
                 shape_width = 20

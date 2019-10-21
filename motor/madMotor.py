@@ -1,17 +1,29 @@
+###
+# madMotor.py
+# Send command to control the motor
+##
+
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 import RPi.GPIO as GPIO
+
+# Python utility
+from Queue import Queue
 from time import sleep
-
-import subprocess
-import Queue
-
 from threading import Thread
 
+#Define GPIO pinout 
+#Enable the driver when this pin is LOW
 EN =  11 #GPIO 23 #BCM 11
+#Direction of rotation 
 DIR = 26 #GPIO 37 #BCM 26
+#A 1 and 0 on this pin make the motor go forward 1 step
 STEP = 19 #GPIO 35 #BCM 19
 
+# Pin connected to start switch to initialize the position
+START = ??
 
 class MotorThread(Thread):
     def __init__(self, taskQ):
@@ -28,14 +40,7 @@ class MotorThread(Thread):
         #Disable the stepper driver
         GPIO.output(EN, GPIO.HIGH)
 
-        #Stepper motor TMC2208 Pin configuration
-        GPIO.setup(DIR, GPIO.OUT)
-        GPIO.setup(STEP, GPIO.OUT)
-        GPIO.setup(EN, GPIO.OUT)
-
-        #Disable the stepper driver
-        GPIO.output(EN, GPIO.LOW)
-
+        # Variable to tell when the motor is moving
         self.motorActive = True   
 
     def programMove(self,numberOfStep,dir, interval):
