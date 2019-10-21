@@ -1,4 +1,10 @@
+###
+# madSlider.py
+# Main file launching and managing all thread.
+##
+
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import RPi.GPIO as GPIO
 from time import sleep
@@ -17,9 +23,9 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-from madUi import UIThread
-from madMotor import MotorThread
-from madCom import ComThread
+from ui.madUi import UIThread
+from motor.madMotor import MotorThread
+from com.madCom import ComThread
 
 #motorMovesQueue = Queue.Queue(maxsize = 10)
 
