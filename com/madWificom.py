@@ -9,7 +9,7 @@
 # Raspberry pi based
 import RPi.GPIO as GPIO
 
-# Python utility 
+# Python utility
 from time import sleep
 from threading import Thread
 
@@ -24,5 +24,5 @@ class wifiComThread(Thread):
         self.msgQueue = msgQ
 
     # Run loop as long as the phone didn't send "quit" command
-    def run(self): 
-                
+    def run(self):
+	

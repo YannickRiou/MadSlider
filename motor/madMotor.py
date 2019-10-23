@@ -23,7 +23,7 @@ DIR = 26 #GPIO 37 #BCM 26
 STEP = 19 #GPIO 35 #BCM 19
 
 # Pin connected to start switch to initialize the position
-START = ??
+START = 12 # GPIO 32 # BCM 12
 
 class MotorThread(Thread):
     def __init__(self, taskQ):

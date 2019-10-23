@@ -42,9 +42,9 @@ class btComThread(Thread):
             
             # Add the received command to the main Queue to be handled 
             # by madSlider main routine 
-            self.msgQueue.add(self.data)
-
+            self.msgQueue.put(self.data)
+	
         self.client_sock.close()
         self.server_sock.close()
-            
+        return 0    
             
