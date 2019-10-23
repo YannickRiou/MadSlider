@@ -51,9 +51,9 @@ if __name__ == '__main__':
 
     # Start all threads beginning with the Bluetooth communication thread
     btComThread.start()
-    uiThread.start()
-    motorThread.start()
-    wifiComThread.start()
+    #uiThread.start()
+    #motorThread.start()
+    #wifiComThread.start()
 
     # Boolean to keep track of the running state of the main loop
     runMainLoop = True
@@ -68,13 +68,14 @@ if __name__ == '__main__':
         # Msg is like this: [cmd],parameter1, parameter2, parameterx
         #cmd can be mv (move), tl (timelapse), tr (travel)
         cmd =  re.findall('\[([a-z]*)\]',msg)[0]
+        print(cmd)
 
 
     # If the system is shutting down, wait for all the threads to quit and stop
-    motorThread.join()
-    uiThread.join()
+    #motorThread.join()
+    #uiThread.join()
     btComThread.join()
-    wifiComThread.join()
+    #wifiComThread.join()
    
     # Everything went well, now shutdown the pi 
     # so we can disconnect the battery
