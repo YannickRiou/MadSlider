@@ -17,13 +17,12 @@ from threading import Thread
 from wifi import Cell, Scheme
 
 class wifiComThread(Thread):
-    def __init__(self,taskQ):
+    def __init__(self,msgQ):
         Thread.__init__(self)
         # Search for all devices around
         self.devList = Cell.all('wlan0')
-        self.taskQueue = taskQ
+        self.msgQueue = msgQ
 
     # Run loop as long as the phone didn't send "quit" command
     def run(self): 
-                    
-            
+                

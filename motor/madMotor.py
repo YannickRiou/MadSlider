@@ -57,8 +57,8 @@ class MotorThread(Thread):
             sleep(interval)
 
     def run(self): 
-        while self.taskQueue.empty() == False:       
-            print(self.taskQueue.get(block,1))
+        while self.msgQueue.empty() == False:       
+            print(self.msgQueue.get(block,1))
             
 
    
