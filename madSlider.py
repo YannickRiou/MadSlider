@@ -22,7 +22,7 @@ import re
 
 # Project packages to handle motors, screen and communication
 #from ui.madUi import UIThread
-#from motor.madMotor import MotorThread
+from motor.madMotor import motorThread
 from com.madBtcom import btComThread
 #from com.madWificom import wifiComThread
 
@@ -38,20 +38,20 @@ if __name__ == '__main__':
     #Create Threads to handle UI, motor control and communication
     # (BT for smartphone and wifi for camera)
     #uiThread = UIThread(uiTaskQueue)
-    #motorThread = MotorThread(motorTaskQueue)
+    motorThread = motorThread(motorTaskQueue)
     btComThread = btComThread(msgQueue)
     #wifiComThread = wifiComThread(msgQueue)
 
     # Give threads more meaningful names
     #uiThread.setName('User Interface Thread')
-    #motorThread.setName('Motor Movement Thread')
+    motorThread.setName('Motor Movement Thread')
     btComThread.setName('Bluetooth Communication Thread')
     #wifiComThread.setName('Wifi Communication Thread')
 
     # Start all threads beginning with the Bluetooth communication thread
     btComThread.start()
     #uiThread.start()
-    #motorThread.start()
+    motorThread.start()
     #wifiComThread.start()
 
     # Boolean to keep track of the running state of the main loop
@@ -60,19 +60,28 @@ if __name__ == '__main__':
     # Main running loop that wait for messages from btComThread and give task to 
     # uiThread, motorThread and send message to wifiComThread
     while btComThread.is_alive() :
-	try:
-        	# Verify the command sent by the smartphone
-        	msg = msgQueue.get()
+        try:
+                # Verify the command sent by the smartphone
+                msg = msgQueue.get()
 
-        	# Msg is like this: [cmd],parameter1, parameter2, parameterx
-        	#cmd can be mv (move), tl (timelapse), tr (travel)
-        	cmd =  re.findall('\[([a-z]*)\]',msg)[0]
-        	print(cmd)
-	except :
-		print("Oops error occured.")
+                # Msg is like this: [cmd],parameter1, parameter2, parameterx
+                #cmd can be mv (move), tl (timelapse), tr (travel)
+                cmd =  re.findall('\[([a-z]*)\]',msg)[0]
+                
+                if "quit" in cmd:
+                  print "Quit sent to motor"
+                  motorTaskQueue.put(msg)
+                  #uiTaskQueue.put(msg)
+  
+                if "mv" in cmd :
+                  motorTaskQueue.put(msg)
 
+        except :
+          print("Oops error occured.")
+    
+    print "wait for join"
     # If the system is shutting down, wait for all the threads to quit and stop
-    #motorThread.join()
+    motorThread.join()
     #uiThread.join()
     btComThread.join()
     #wifiComThread.join()
