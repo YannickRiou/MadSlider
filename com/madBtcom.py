@@ -36,15 +36,16 @@ class btComThread(Thread):
 
     # Run loop as long as the phone didn't send "quit" command
     def run(self): 
-        while "quit" not in self.data:       
-            self.data = self.client_sock.recv(1024)
+        while 'quit' not in self.data:       
+            self.data = self.client_sock.recv(2048)
             #self.client_sock.send(self.data)
-            
+            print "rcv : ", self.data
             # Add the received command to the main Queue to be handled 
             # by madSlider main routine 
             self.msgQueue.put(self.data)
-	
+            print "Queue size :", self.msgQueue.qsize()
+            	
+        print 'Quitting'
         self.client_sock.close()
-        self.server_sock.close()
-        return 0    
+        self.server_sock.close()   
             

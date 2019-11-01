@@ -29,11 +29,11 @@ from com.madBtcom import btComThread
 if __name__ == '__main__':
 
     # Message queue to handle communication request
-    msgQueue = Queue(maxsize = 10)
+    msgQueue = Queue()
 
     # Task queue to handle command to motor and UI
-    motorTaskQueue = Queue(maxsize = 10)
-    uiTaskQueue = Queue(maxsize = 10)
+    motorTaskQueue = Queue()
+    uiTaskQueue = Queue()
 
     #Create Threads to handle UI, motor control and communication
     # (BT for smartphone and wifi for camera)
@@ -51,6 +51,7 @@ if __name__ == '__main__':
     # Start all threads beginning with the Bluetooth communication thread
     btComThread.start()
     #uiThread.start()
+
     motorThread.start()
     #wifiComThread.start()
 
@@ -59,31 +60,28 @@ if __name__ == '__main__':
 
     # Main running loop that wait for messages from btComThread and give task to 
     # uiThread, motorThread and send message to wifiComThread
-    while btComThread.is_alive() :
+    while runMainLoop :
         try:
-                # Verify the command sent by the smartphone
-                msg = msgQueue.get()
-
-                # Msg is like this: [cmd],parameter1, parameter2, parameterx
-                #cmd can be mv (move), tl (timelapse), tr (travel)
-                cmd =  re.findall('\[([a-z]*)\]',msg)[0]
-                
-                if "quit" in cmd:
-                  print "Quit sent to motor"
-                  motorTaskQueue.put(msg)
-                  #uiTaskQueue.put(msg)
+          # Verify the command sent by the smartphone
+          msg = msgQueue.get()
   
-                if "mv" in cmd :
-                  motorTaskQueue.put(msg)
+          # Msg is like this: [cmd],parameter1, parameter2, parameterx
+          #cmd can be mv (move), tl (timelapse), tr (travel)
+          cmd =  re.findall('\[([a-z]*)\]',msg)[0]
 
-        except :
-          print("Oops error occured.")
+          if "quit" in msg :
+            print "received quit, sending quit to thread"
+            runMainLoop = False
+            motorTaskQueue.put(msg)
+
+          elif  "mv" in cmd or "tl" in cmd or "tr" in cmd :
+            motorTaskQueue.put(msg)
+
+        except Exception as e:
+          print("Oops error occured  : ", e)
     
-    print "wait for join"
     # If the system is shutting down, wait for all the threads to quit and stop
-    motorThread.join()
     #uiThread.join()
-    btComThread.join()
     #wifiComThread.join()
    
     # Everything went well, now shutdown the pi 
