@@ -86,14 +86,14 @@ class UIThread(Thread):
              
                 while self.uiActive:
                         with canvas(self.device) as draw:
-                                if GPIO.input(KEY_TOP_PIN)==0:
+                                if GPIO.input(KEY_UP_PIN)==0:
                                         if self.mode < 5:
                                                 self.mode = self.mode + 1    
                                         else:
                                                 self.mode = 1 
                                         sleep(0.1) 
                 
-                                if GPIO.input(KEY_BOT_PIN)==0:
+                                if GPIO.input(KEY_DOWN_PIN)==0:
                                         if self.mode > 1 :
                                                 self.mode = self.mode - 1
                                         else:
