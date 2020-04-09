@@ -21,7 +21,7 @@ from subprocess import call
 import re
 
 # Project packages to handle motors, screen and communication
-#from ui.madUi import UIThread
+from ui.madUi import UIThread
 from motor.madMotor import motorThread
 from com.madBtcom import btComRcvThread
 from battery.madBattery import batteryThread
@@ -36,31 +36,32 @@ if __name__ == '__main__':
     # Task queue to handle command to motor and UI
     motorTaskQueue = Queue()
     comSendQueue = Queue()
-    #uiTaskQueue = Queue()
+    uiTaskQueue = Queue()
 
     #Create Threads to handle UI, motor control and communication
     # (BT for smartphone and wifi for camera)
-    #uiThread = UIThread(uiTaskQueue)
+    uiThread = UIThread(uiTaskQueue)
     motorThread = motorThread(motorTaskQueue,comSendQueue)
     btComRcvThread = btComRcvThread(msgQueue,comSendQueue)
     batteryThread = batteryThread(comSendQueue)
     #wifiComThread = wifiComThread(msgQueue)
 
     # Give threads more meaningful names
-    #uiThread.setName('User Interface Thread')
+    uiThread.setName('User Interface Thread')
     motorThread.setName('Motor Movement Thread')
     btComRcvThread.setName('Bluetooth Communication Receive Thread')
     batteryThread.setName('Battery level checker thread')
     #wifiComThread.setName('Wifi Communication Thread')
 
     # Start all threads beginning with the Bluetooth communication thread
-    btComRcvThread.start()
-    #uiThread.start()
 
     motorThread.start()
+    uiThread.start()
+    btComRcvThread.start()
     #wifiComThread.start()
 
     batteryThread.start()
+
 
     # Boolean to keep track of the running state of the main loop
     runMainLoop = True
@@ -77,19 +78,20 @@ if __name__ == '__main__':
           cmd =  re.findall('\[([a-zA-Z]*)\]',msg)[0]
 
           if "quit" in msg :
-            print ("received quit, sending quit to thread")
+            #print ("received quit, sending quit to thread")
             runMainLoop = False
             motorTaskQueue.put(msg)
 
           #TODO: Cleanup...
           elif  "mv" in cmd or "tl" in cmd or "tr" in cmd or "getpos" in cmd or "mvTo":
-            print ("Command received for Motor ! ")
+            #print ("Command received for Motor ! ")
             motorTaskQueue.put(msg)
 
         except Exception as e:
           print("Oops error occured from madSlider.py  : ", e)
 
     # If the system is shutting down, wait for all the threads to quit and stop
+    #batteryThread.join()
     #uiThread.join()
     #wifiComThread.join()
     motorThread.join()

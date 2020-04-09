@@ -18,15 +18,16 @@ from threading import Thread, Event
 # Parsing utilities
 import re
 
+
 MAXPOSITION = 27319
 
 #Define GPIO pinout
 #Enable the driver when this pin is LOW
-EN =  11 #GPIO 23 #BCM 11
+EN =  15 #GPIO 10 #BCM 15
 #Direction of rotation
-DIR = 26 #GPIO 37 #BCM 26
+DIR = 23 #GPIO 16 #BCM 23
 #A 1 and 0 on this pin make the motor go forward 1 step
-STEP = 19 #GPIO 35 #BCM 19
+STEP = 18 #GPIO 12 #BCM 18
 
 # Pin connected to start switch to initialize the position
 START = 12 # GPIO 32 # BCM 12
@@ -182,8 +183,6 @@ class motorThread(Thread):
         #Disable the stepper driver
         GPIO.output(EN, GPIO.HIGH)
 
-        GPIO.add_event_detect(START, GPIO.RISING, callback=self.interrupt_handler, bouncetime=200)
-
         # Variable to tell when the motor is moving
         self.motorActive = True
 
@@ -198,13 +197,14 @@ class motorThread(Thread):
         self.runMotorLoop = True
         self.position = 0
 
-        self.initMadSliderPos()
+        GPIO.add_event_detect(START, GPIO.RISING, callback=self.interrupt_handler, bouncetime=200)
 
     def run(self):
+        self.initMadSliderPos()
         while self.runMotorLoop :
             try:
                 self.task = self.taskQueue.get()
-                print ("get : ", self.task)
+                #print ("get : ", self.task)
                 if 'quit' in self.task :
                     self.runMotorLoop = False
                 else:

@@ -12,9 +12,9 @@ import RPi.GPIO as GPIO
 # Python utility
 from time import sleep
 from threading import Thread
-from Queue import Queue
+from queue import *
 
-# OLED Screen library 
+# OLED Screen library
 from luma.core.interface.serial import i2c, spi
 from luma.core.render import canvas
 from luma.core import lib
@@ -48,73 +48,70 @@ freeMoveMode = 4
 GPIO.setwarnings(False)
 
 class UIThread(Thread):
-        def __init__(self,taskQ):
-                Thread.__init__(self)
-		serial = spi(device=0, port=0, bus_speed_hz = 8000000, transfer_size = 4096, gpio_DC = DC_PIN, gpio_RST = RST_PIN)
-		self.device = sh1106(serial, rotate=2) #sh1106
-                self.taskQueue = taskQ
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(KEY_UP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Input with pull-up
-		GPIO.setup(KEY_DOWN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
-		GPIO.setup(KEY_LEFT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
-		GPIO.setup(KEY_RIGHT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
-		GPIO.setup(KEY_PRESS_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
-		GPIO.setup(KEY_TOP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
-		GPIO.setup(KEY_MID_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
-		GPIO.setup(KEY_BOT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
+    def __init__(self,taskQ):
+        Thread.__init__(self)
+        serial = spi(device=0, port=0, bus_speed_hz = 8000000, transfer_size = 4096, gpio_DC = DC_PIN, gpio_RST = RST_PIN)
+        self.device = sh1106(serial, rotate=2) #sh1106
+        self.taskQueue = taskQ
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(KEY_UP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Input with pull-up
+        GPIO.setup(KEY_DOWN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
+        GPIO.setup(KEY_LEFT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
+        GPIO.setup(KEY_RIGHT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
+        GPIO.setup(KEY_PRESS_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
+        GPIO.setup(KEY_TOP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
+        GPIO.setup(KEY_MID_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
+        GPIO.setup(KEY_BOT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
 
-                self.font = ImageFont.load_default()
+        self.font = ImageFont.load_default()
 
-                #Init mode
-                self.mode = videoMode
+        #Init mode
+        self.mode = videoMode
 
-		self.width = 128
-		self.height = 64
+        self.width = 128
+        self.height = 64
 
-                padding = 2
-                shape_width = 20
-                self.top = padding
-                bottom = self.height-padding
+        padding = 2
+        shape_width = 20
+        self.top = padding
+        bottom = self.height-padding
 
-                self.x = padding
-                self.y = padding
+        self.x = padding
+        self.y = padding
 
-                self.uiActive = True   
-                self.updateNeeded = True
+        self.uiActive = True
 
-        def run(self):
-             
-                while self.uiActive:
-                        with canvas(self.device) as draw:
-                                if GPIO.input(KEY_UP_PIN)==0:
-                                        if self.mode < 5:
-                                                self.mode = self.mode + 1    
-                                        else:
-                                                self.mode = 1 
-                                        sleep(0.1) 
-                
-                                if GPIO.input(KEY_DOWN_PIN)==0:
-                                        if self.mode > 1 :
-                                                self.mode = self.mode - 1
-                                        else:
-                                                self.mode = 4  
-                                        sleep(0.1)
-                                      
-                        
-                                if self.mode == videoMode:
-                                        draw.text((self.x, self.top),    'Video',  font=self.font, fill="white")
-                                        
-                                if self.mode == screenSaverMode:
-                                        draw.text((self.x, self.top),    'Hello',  font=self.font, fill="white")
 
-                                if self.mode == timelapseMode:
-                                        draw.text((self.x, self.top),    'Timelapse',  font=self.font, fill="white")
-                                        
-                                if self.mode == freeMoveMode:
-                                        draw.text((self.x, self.top),    'Freemove',  font=self.font, fill="white")
-                                        if(self.taskQueue.empty()) :
-                                               self.taskQueue.put("kikou")
-                                        
-                                if GPIO.input(KEY_MID_PIN)==0:
-                                        self.uiActive = False
 
+    def run(self):
+        while self.uiActive:
+            sleep(0.2)
+            with canvas(self.device) as draw:
+                if GPIO.input(KEY_UP_PIN)==0:
+                    if self.mode < 4:
+                        self.mode = self.mode + 1
+                    else:
+                        self.mode = 4
+
+                if GPIO.input(KEY_DOWN_PIN)==0:
+                    if self.mode > 1 :
+                        self.mode = self.mode - 1
+                    else:
+                        self.mode = 1
+
+                if self.mode == videoMode :
+                    draw.text((self.x, self.top),    'Video',  font=self.font, fill="white")
+
+                if self.mode == screenSaverMode:
+                    draw.text((self.x, self.top),    'Hello',  font=self.font, fill="white")
+
+                if self.mode == timelapseMode:
+                    draw.text((self.x, self.top),    'Timelapse',  font=self.font, fill="white")
+
+                if self.mode == freeMoveMode:
+                    draw.text((self.x, self.top),    'Freemove',  font=self.font, fill="white")
+
+
+                if GPIO.input(KEY_MID_PIN)==0:
+                    self.uiActive = False
+                    GPIO.cleanup()

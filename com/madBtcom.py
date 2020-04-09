@@ -33,28 +33,26 @@ class btComRcvThread(Thread):
         self.cmd=0
 
         #Wait for connection from smartphone
-        self.client_sock,self.address = self.server_sock.accept()
-        print ("Accepted connection from ",self.address)
 
         self.sendQ = comSendQ
 
+    # Run loop as long as the phone didn't send "quit" command
+    def run(self):
+        self.client_sock,self.address = self.server_sock.accept()
+        print ("Accepted connection from ",self.address)
         # Create thread to handle send of telemetry to phone (position, status,etc.)
         self.btComSndThread = btComSndThread(self.sendQ,self.client_sock)
         self.btComSndThread.setName('Bluetooth Communication Send Thread')
         self.btComSndThread.start()
-
-
-    # Run loop as long as the phone didn't send "quit" command
-    def run(self):
         global runSndThread
         while 'quit' not in self.data:
             self.data = self.client_sock.recv(2048).decode()
             #self.client_sock.send(self.data)
-            print ("rcv : ", self.data)
+            #print ("rcv : ", self.data)
             # Add the received command to the main Queue to be handled
             # by madSlider main routine
             self.msgQueue.put(self.data)
-            print ("Queue size :", self.msgQueue.qsize())
+            #print ("Queue size :", self.msgQueue.qsize())
 
         print ('==[Quitting Rcv Thread]==')
         runSndThread = False
